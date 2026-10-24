@@ -1,0 +1,11 @@
+.venv/
+__pycache__/
+*.pyc
+.pytest_cache/
+artifacts/*
+!artifacts/.gitkeep
+data/*.csv
+data/*.json
+!data/README.md
+.env
+.DS_Store

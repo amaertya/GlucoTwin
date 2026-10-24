@@ -1,0 +1,216 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>GlucoTwin — Personalised Glucose Response Digital Twin</title>
+    <link rel="stylesheet" href="css/glucotwin_styles.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+<body>
+    <div class="app-container">
+        <aside class="sidebar">
+            <div class="brand">
+                <span class="brand-icon">🧬</span>
+                <h2>GlucoTwin</h2>
+            </div>
+            <div class="patient-selector-box">
+                <label for="globalPatientSelect">Active Patient Twin</label>
+                <select id="globalPatientSelect" class="select-dropdown"></select>
+                <span class="badge synthetic">Synthetic Cohort v1</span>
+            </div>
+            <nav class="nav-menu">
+                <button class="nav-item active" data-target="overview">Overview</button>
+                <button class="nav-item" data-target="virtual-patient">Virtual Patient</button>
+                <button class="nav-item" data-target="prediction-centre">Prediction Centre</button>
+                <button class="nav-item" data-target="simulation-lab">Simulation Lab</button>
+                <button class="nav-item" data-target="model-insights">Model Insights</button>
+                <button class="nav-item" data-target="data-explorer">Data Explorer</button>
+                <button class="nav-item" data-target="system-info">System Info</button>
+            </nav>
+            <div class="sidebar-footer">
+                <p>Happiest Health Challenge 2026</p>
+                <span id="apiStatusBadge" class="status-indicator offline">API Offline</span>
+            </div>
+        </aside>
+
+        <main class="main-content">
+            <header class="topbar">
+                <h1 id="pageTitle">Overview</h1>
+                <div class="disclaimer-banner">
+                    ⚠️ Research & educational prototype only. Not for clinical decisions.
+                </div>
+            </header>
+
+            <div class="content-body">
+                <!-- Overview -->
+                <section id="overview" class="content-section active">
+                    <div class="stats-grid">
+                        <div class="card stat-card">
+                            <h3>Current Glucose</h3>
+                            <p class="stat-value" id="overviewCurrentGlucose">-- mg/dL</p>
+                            <span class="stat-meta" id="overviewTimestamp">Loading timestamp...</span>
+                        </div>
+                        <div class="card stat-card">
+                            <h3>30-Min Forecast</h3>
+                            <p class="stat-value highlight" id="overviewForecast">-- mg/dL</p>
+                            <span class="stat-meta">Digital Twin Forecast</span>
+                        </div>
+                        <div class="card stat-card">
+                            <h3>HbA1c & BMI</h3>
+                            <p class="stat-value" id="overviewHbA1c">--%</p>
+                            <span class="stat-meta" id="overviewBmi">BMI: --</span>
+                        </div>
+                        <div class="card stat-card">
+                            <h3>Data Stream</h3>
+                            <p class="stat-value success">Active</p>
+                            <span class="stat-meta">15-min CGM Sampling</span>
+                        </div>
+                    </div>
+                    <div class="card mt-20">
+                        <h2>Longitudinal Patient Trajectory & Recent CGM</h2>
+                        <div class="chart-container">
+                            <canvas id="overviewChart"></canvas>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- Virtual Patient -->
+                <section id="virtual-patient" class="content-section">
+                    <div class="grid-2">
+                        <div class="card">
+                            <h2>Clinical Profile & EHR History</h2>
+                            <div id="patientProfileDetails" class="details-list"></div>
+                        </div>
+                        <div class="card">
+                            <h2>Wearable Activity Snapshot</h2>
+                            <div class="chart-container-sm">
+                                <canvas id="wearableChart"></canvas>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- Prediction Centre -->
+                <section id="prediction-centre" class="content-section">
+                    <div class="card">
+                        <h2>30-Minute Horizon Forecast Engine</h2>
+                        <p class="section-desc">Real-time prediction generated via trained Random Forest regression model.</p>
+                        <div class="prediction-display-box">
+                            <div>
+                                <span class="label">Predicted Value</span>
+                                <h3 id="predValueDisplay" class="big-number">-- mg/dL</h3>
+                            </div>
+                            <div>
+                                <span class="label">95% Confidence Interval</span>
+                                <p id="predCiDisplay" class="ci-text">--</p>
+                            </div>
+                            <div>
+                                <span class="label">Model Version</span>
+                                <p id="predModelDisplay">glucotwin-v1.0.0-rf</p>
+                            </div>
+                        </div>
+                        <button id="triggerPredictionBtn" class="btn primary mt-20">Run Real-Time Prediction</button>
+                    </div>
+                </section>
+
+                <!-- Simulation Lab -->
+                <section id="simulation-lab" class="content-section">
+                    <div class="grid-2">
+                        <div class="card">
+                            <h2>Lifestyle Counterfactual Controls</h2>
+                            <div class="form-group">
+                                <label>Carbohydrate Intake Delta (<span id="carbsVal">50</span>g)</label>
+                                <input type="range" id="simCarbs" min="0" max="120" value="50" step="5">
+                            </div>
+                            <div class="form-group">
+                                <label>Physical Activity Delta (<span id="activityVal">30</span> mins)</label>
+                                <input type="range" id="simActivity" min="0" max="120" value="30" step="10">
+                            </div>
+                            <div class="form-group">
+                                <label>Sleep Duration (<span id="sleepVal">7.5</span> hours)</label>
+                                <input type="range" id="simSleep" min="3" max="10" value="7.5" step="0.5">
+                            </div>
+                            <button id="runSimulationBtn" class="btn primary">Simulate Scenario</button>
+                            <button id="resetSimulationBtn" class="btn secondary ml-10">Reset</button>
+                        </div>
+                        <div class="card">
+                            <h2>Baseline vs. Scenario Counterfactual</h2>
+                            <div class="chart-container-sm">
+                                <canvas id="simulationChart"></canvas>
+                            </div>
+                            <div id="simExplanation" class="explanation-box mt-10">
+                                Adjust sliders and run simulation to observe predicted counterfactual glucose trajectory.
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- Model Insights -->
+                <section id="model-insights" class="content-section">
+                    <div class="card">
+                        <h2>Evaluation Metrics & Provenance</h2>
+                        <div class="stats-grid mt-10">
+                            <div class="stat-box card">
+                                <span class="label">MAE</span>
+                                <h3 id="metricMae">--</h3>
+                            </div>
+                            <div class="stat-box card">
+                                <span class="label">RMSE</span>
+                                <h3 id="metricRmse">--</h3>
+                            </div>
+                            <div class="stat-box card">
+                                <span class="label">R² Score</span>
+                                <h3 id="metricR2">--</h3>
+                            </div>
+                            <div class="stat-box card">
+                                <span class="label">Persistence Baseline MAE</span>
+                                <h3 id="metricBaseMae">--</h3>
+                            </div>
+                        </div>
+                        <p class="mt-20 text-muted" id="metricNote">Loaded from training artifacts.</p>
+                    </div>
+                </section>
+
+                <!-- Data Explorer -->
+                <section id="data-explorer" class="content-section">
+                    <div class="card">
+                        <h2>Observation Stream Table</h2>
+                        <div class="table-container mt-10">
+                            <table id="observationTable">
+                                <thead>
+                                    <tr>
+                                        <th>Timestamp</th>
+                                        <th>Glucose (mg/dL)</th>
+                                        <th>Steps</th>
+                                        <th>Sleep (hrs)</th>
+                                        <th>Carbs (g)</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="observationTableBody">
+                                    <tr><td colspan="5" class="text-center">Loading observations...</td></tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- System Info -->
+                <section id="system-info" class="content-section">
+                    <div class="card">
+                        <h2>System Diagnostics & Provenance</h2>
+                        <ul class="system-list mt-10">
+                            <li><strong>Backend Base URL:</strong> <span id="sysUrl">http://127.0.0.1:8000</span></li>
+                            <li><strong>API Connection:</strong> <span id="sysConnection">Checking...</span></li>
+                            <li><strong>Model Status:</strong> <span id="sysModelStatus">Checking...</span></li>
+                            <li><strong>Dataset Source:</strong> Synthetic Type 2 Diabetes Cohort</li>
+                        </ul>
+                    </div>
+                </section>
+            </div>
+        </main>
+    </div>
+
+    <script type="module" src="js/app_controller.js"></script>
+</body>
+</html>
