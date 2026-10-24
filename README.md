@@ -30,7 +30,7 @@ GlucoTwin establishes a physiological digital twin framework for individuals to 
 * **Model Evaluation (`backend/scripts/evaluate_twin_model.py`):** Evaluates model predictive performance and mean absolute error (MARD).
 
 ## 15-20 Minute Demo Video Link
-* **YouTube Video:** [Paste your unlisted YouTube demo video link here]
+* **YouTube Video:** [https://youtu.be/eewgbVNBC0k]
 
 ## Open-Source License Details
 This project is open-source software made available under the **MIT License**.
